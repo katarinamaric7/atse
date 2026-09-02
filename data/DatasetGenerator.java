@@ -1,38 +1,48 @@
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.LinkedHashSet;
 import java.util.Random;
+import java.util.Set;
 
 public class DatasetGenerator {
 
+    private static final int VALUE_RANGE = 1_000_000;
+
     public static void main(String[] args) {
 
-        // Default size, or pass a number as the first argument: java DatasetGenerator 1000000
+
         int size = 100_000;
         if (args.length > 0) {
             size = Integer.parseInt(args[0]);
         }
 
-        File outFile = new File(resolveDataDir(), "big_datasets_" + size + ".txt");
-        generateDataset(size, outFile);
+        File dataDir = resolveDataDir();
+
+        generateUniqueDataset(size, new File(dataDir, "big_datasets_unique_1_" + size + ".txt"));
+        generateUniqueDataset(size, new File(dataDir, "big_datasets_unique_2_" + size + ".txt"));
     }
 
-    public static void generateDataset(int size, File outFile) {
+    public static void generateUniqueDataset(int size, File outFile) {
+
+        int range = Math.max(VALUE_RANGE, size * 10);
 
         Random random = new Random();
+        Set<Integer> values = new LinkedHashSet<>(); 
+
+        while (values.size() < size) {
+            values.add(random.nextInt(range));
+        }
+
         outFile.getParentFile().mkdirs();
 
         try (FileWriter writer = new FileWriter(outFile)) {
 
-            for (int i = 0; i < size; i++) {
-
-                // range values (0 - 1.000.000)
-                int value = random.nextInt(1_000_000);
-
+            for (int value : values) {
                 writer.write(value + "\n");
             }
 
-            System.out.println("Created dataset with " + size + " values:");
+            System.out.println("Created dataset (no duplicates) with " + size + " values:");
             System.out.println("  " + outFile.getAbsolutePath());
 
         } catch (IOException e) {
@@ -40,11 +50,7 @@ public class DatasetGenerator {
         }
     }
 
-    /**
-     * Finds the atse/data folder no matter which working directory the program
-     * is started from (project root, atse/, or atse/data/). Falls back to a
-     * "data" folder under the current directory.
-     */
+    
     private static File resolveDataDir() {
         File dir = new File("").getAbsoluteFile();
 
