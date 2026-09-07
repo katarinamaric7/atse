@@ -8,10 +8,14 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import sort.SelectionSort;
 import sort.MergeSort;
+import sort.BubbleSort;
+import sort.HeapSort;
 
 public class Benchmark {
 
@@ -20,7 +24,15 @@ public class Benchmark {
         int[] run(int[] arr);
     }
 
+    // null -> run every algorithm. A set -> run only those algo names.
+    private static Set<String> selectedAlgos = null;
+
     public static void main(String[] args) {
+
+        selectedAlgos = parseSelectedAlgos(args);
+        if (selectedAlgos != null) {
+            System.out.println("Running only: " + selectedAlgos);
+        }
 
         File randomResultsDir =
                 new File("../results/java/random");
@@ -35,12 +47,18 @@ public class Benchmark {
         createDirectory(duplicatesResultsDir);
         createDirectory(bigDataResultsDir);
 
-        String[] algoNames = {
+        String[] allAlgoNames = {
                 "SelectionSort",
                 "ImprovedSelectionSort",
                 "RecursiveMergeSort",
-                "IterativeMergeSort"
+                "IterativeMergeSort",
+                "BubbleSort",
+                "BasicBubbleSort",
+                "HeapSort",
+                "RecursiveHeapSort"
         };
+
+        String[] algoNames = filterAlgoNames(allAlgoNames);
 
         String randomFilePath =
                 "../data/randomArrays.txt";
@@ -164,6 +182,72 @@ public class Benchmark {
         System.out.println(
                 "../results/java/bigdata/"
         );
+    }
+
+    /**
+     * Reads the algorithm filter from the command line.
+     * Returns null when no argument was given (= run everything).
+     * Accepts full names ("BubbleSort") or shortcuts ("bubble", "heap",
+     * "selection", "merge"), separated by spaces or commas.
+     */
+    private static Set<String> parseSelectedAlgos(String[] args) {
+
+        if (args == null || args.length == 0) {
+            return null;
+        }
+
+        Set<String> selected = new HashSet<>();
+
+        for (String arg : args) {
+
+            for (String token : arg.split("[,\\s]+")) {
+
+                if (token.isEmpty()) {
+                    continue;
+                }
+
+                switch (token.toLowerCase()) {
+                    case "bubble":
+                        selected.add("BubbleSort");
+                        selected.add("BasicBubbleSort");
+                        break;
+                    case "heap":
+                        selected.add("HeapSort");
+                        selected.add("RecursiveHeapSort");
+                        break;
+                    case "selection":
+                        selected.add("SelectionSort");
+                        selected.add("ImprovedSelectionSort");
+                        break;
+                    case "merge":
+                        selected.add("RecursiveMergeSort");
+                        selected.add("IterativeMergeSort");
+                        break;
+                    default:
+                        selected.add(token);
+                }
+            }
+        }
+
+        return selected;
+    }
+
+    /** Keeps only the algorithm names that pass the command-line filter. */
+    private static String[] filterAlgoNames(String[] allAlgoNames) {
+
+        if (selectedAlgos == null) {
+            return allAlgoNames;
+        }
+
+        List<String> kept = new ArrayList<>();
+
+        for (String name : allAlgoNames) {
+            if (selectedAlgos.contains(name)) {
+                kept.add(name);
+            }
+        }
+
+        return kept.toArray(new String[0]);
     }
 
     private static void createDirectory(File directory) {
@@ -340,6 +424,62 @@ public class Benchmark {
                                     MergeSort.mergeSortWithoutRecursion(arr)
                     );
 
+                    measureAndSave(
+                            datasetName,
+                            run,
+                            "BubbleSort",
+                            originalArr,
+                            resultsDir,
+                            arr -> {
+
+                                BubbleSort.sort(arr);
+
+                                return arr;
+                            }
+                    );
+
+                    measureAndSave(
+                            datasetName,
+                            run,
+                            "BasicBubbleSort",
+                            originalArr,
+                            resultsDir,
+                            arr -> {
+
+                                BubbleSort.sortBasic(arr);
+
+                                return arr;
+                            }
+                    );
+
+                    measureAndSave(
+                            datasetName,
+                            run,
+                            "HeapSort",
+                            originalArr,
+                            resultsDir,
+                            arr -> {
+
+                                HeapSort.sort(arr);
+
+                                return arr;
+                            }
+                    );
+
+                    measureAndSave(
+                            datasetName,
+                            run,
+                            "RecursiveHeapSort",
+                            originalArr,
+                            resultsDir,
+                            arr -> {
+
+                                HeapSort.sortRecursive(arr);
+
+                                return arr;
+                            }
+                    );
+
                     System.out.println(
                             "--------------------------------------------"
                     );
@@ -467,6 +607,62 @@ public class Benchmark {
                             MergeSort.mergeSortWithoutRecursion(arr)
             );
 
+            measureAndSave(
+                    datasetName,
+                    run,
+                    "BubbleSort",
+                    originalArr,
+                    resultsDir,
+                    arr -> {
+
+                        BubbleSort.sort(arr);
+
+                        return arr;
+                    }
+            );
+
+            measureAndSave(
+                    datasetName,
+                    run,
+                    "BasicBubbleSort",
+                    originalArr,
+                    resultsDir,
+                    arr -> {
+
+                        BubbleSort.sortBasic(arr);
+
+                        return arr;
+                    }
+            );
+
+            measureAndSave(
+                    datasetName,
+                    run,
+                    "HeapSort",
+                    originalArr,
+                    resultsDir,
+                    arr -> {
+
+                        HeapSort.sort(arr);
+
+                        return arr;
+                    }
+            );
+
+            measureAndSave(
+                    datasetName,
+                    run,
+                    "RecursiveHeapSort",
+                    originalArr,
+                    resultsDir,
+                    arr -> {
+
+                        HeapSort.sortRecursive(arr);
+
+                        return arr;
+                    }
+            );
+
             System.out.println(
                     "--------------------------------------------"
             );
@@ -591,6 +787,10 @@ public class Benchmark {
             int[] originalArr,
             File resultsDir,
             AlgorithmFunction algo) {
+
+        if (selectedAlgos != null && !selectedAlgos.contains(algoName)) {
+            return;
+        }
 
         int[] arrCopy =
                 Arrays.copyOf(

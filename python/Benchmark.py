@@ -1,13 +1,47 @@
 import csv
 import os
+import sys
 import time
 import psutil
 
 from sort.SelectionSort import SelectionSort
 from sort.MergeSort import MergeSort
+from sort.BubbleSort import BubbleSort
+from sort.HeapSort import HeapSort
+
+
+# None -> run every algorithm. A set -> run only those algo_name values.
+SELECTED_ALGOS = None
+
+# Friendly shortcuts you can pass on the command line instead of full names.
+ALGO_ALIASES = {
+    "bubble": ["BubbleSort", "BasicBubbleSort"],
+    "heap": ["HeapSort", "RecursiveHeapSort"],
+    "selection": ["SelectionSort", "ImprovedSelectionSort"],
+    "merge": ["RecursiveMergeSort", "IterativeMergeSort"],
+}
+
+
+def parse_selected_algos(args):
+    if not args:
+        return None
+    tokens = " ".join(args).replace(",", " ").split()
+    selected = set()
+    for token in tokens:
+        key = token.lower()
+        if key in ALGO_ALIASES:
+            selected.update(ALGO_ALIASES[key])
+        else:
+            selected.add(token)
+    return selected
 
 
 def main():
+
+    global SELECTED_ALGOS
+    SELECTED_ALGOS = parse_selected_algos(sys.argv[1:])
+    if SELECTED_ALGOS is not None:
+        print("Running only: " + ", ".join(sorted(SELECTED_ALGOS)))
 
     random_results_dir = "../results/python/random"
     duplicates_results_dir = "../results/python/duplicates"
@@ -21,8 +55,17 @@ def main():
         "SelectionSort",
         "ImprovedSelectionSort",
         "RecursiveMergeSort",
-        "IterativeMergeSort"
+        "IterativeMergeSort",
+        "BubbleSort",
+        "BasicBubbleSort",
+        "HeapSort",
+        "RecursiveHeapSort"
     ]
+
+    if SELECTED_ALGOS is not None:
+        algo_names = [
+            name for name in algo_names if name in SELECTED_ALGOS
+        ]
 
     random_file_path = "../data/randomArrays.txt"
 
@@ -297,6 +340,42 @@ def process_input_file(
                     MergeSort.mergeSortWithoutRecursion
                 )
 
+                measure_and_save(
+                    dataset_name,
+                    run,
+                    "BubbleSort",
+                    original_arr,
+                    results_dir,
+                    BubbleSort.sort
+                )
+
+                measure_and_save(
+                    dataset_name,
+                    run,
+                    "BasicBubbleSort",
+                    original_arr,
+                    results_dir,
+                    BubbleSort.sort_basic
+                )
+
+                measure_and_save(
+                    dataset_name,
+                    run,
+                    "HeapSort",
+                    original_arr,
+                    results_dir,
+                    HeapSort.sort
+                )
+
+                measure_and_save(
+                    dataset_name,
+                    run,
+                    "RecursiveHeapSort",
+                    original_arr,
+                    results_dir,
+                    HeapSort.sort_recursive
+                )
+
                 print(
                     "--------------------------------------------"
                 )
@@ -404,6 +483,42 @@ def process_big_data_file(
             MergeSort.mergeSortWithoutRecursion
         )
 
+        measure_and_save(
+            dataset_name,
+            run,
+            "BubbleSort",
+            original_arr,
+            results_dir,
+            BubbleSort.sort
+        )
+
+        measure_and_save(
+            dataset_name,
+            run,
+            "BasicBubbleSort",
+            original_arr,
+            results_dir,
+            BubbleSort.sort_basic
+        )
+
+        measure_and_save(
+            dataset_name,
+            run,
+            "HeapSort",
+            original_arr,
+            results_dir,
+            HeapSort.sort
+        )
+
+        measure_and_save(
+            dataset_name,
+            run,
+            "RecursiveHeapSort",
+            original_arr,
+            results_dir,
+            HeapSort.sort_recursive
+        )
+
         print(
             "--------------------------------------------"
         )
@@ -501,6 +616,9 @@ def measure_and_save(
         original_arr,
         results_dir,
         algorithm):
+
+    if SELECTED_ALGOS is not None and algo_name not in SELECTED_ALGOS:
+        return
 
     arr_copy = original_arr.copy()
 
