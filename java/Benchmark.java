@@ -11,11 +11,12 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import sort.SelectionSort;
-import sort.MergeSort;
 import sort.BubbleSort;
 import sort.HeapSort;
+import sort.InsertionSort;
+import sort.MergeSort;
+import sort.QuickSort;
+import sort.SelectionSort;
 
 public class Benchmark {
 
@@ -55,7 +56,11 @@ public class Benchmark {
                 "BubbleSort",
                 "BasicBubbleSort",
                 "HeapSort",
-                "RecursiveHeapSort"
+                "RecursiveHeapSort",
+                "InsertionSort",
+                "RecursiveInsertionSort",
+                "QuickSort",
+                "IterativeQuickSort"
         };
 
         String[] algoNames = filterAlgoNames(allAlgoNames);
@@ -222,6 +227,14 @@ public class Benchmark {
                     case "merge":
                         selected.add("RecursiveMergeSort");
                         selected.add("IterativeMergeSort");
+                        break;
+                    case "insertion":
+                        selected.add("InsertionSort");
+                        selected.add("RecursiveInsertionSort");
+                        break;
+                    case "quick":
+                        selected.add("QuickSort");
+                        selected.add("IterativeQuickSort");
                         break;
                     default:
                         selected.add(token);
@@ -480,6 +493,65 @@ public class Benchmark {
                             }
                     );
 
+                    measureAndSave(
+                            datasetName,
+                            run,
+                            "InsertionSort",
+                            originalArr,
+                            resultsDir,
+                            arr -> {
+                                InsertionSort insertion = new InsertionSort();
+                                insertion.sort(arr);
+
+                                return arr;
+                            }
+                    );
+
+                    measureAndSave(
+                            datasetName,
+                            run,
+                            "RecursiveInsertionSort",
+                            originalArr,
+                            resultsDir,
+                            arr -> {
+
+                                InsertionSort insertion = new InsertionSort();
+                                insertion.recursiveSort(arr);
+
+                                return arr;
+                            }
+                    );
+
+                     measureAndSave(
+                            datasetName,
+                            run,
+                            "QuickSort",
+                            originalArr,
+                            resultsDir,
+                            arr -> {
+
+                                QuickSort quick = new QuickSort();
+                                quick.sort(arr);
+
+                                return arr;
+                            }
+                    );
+
+                     measureAndSave(
+                            datasetName,
+                            run,
+                            "IterativeQuickSort",
+                            originalArr,
+                            resultsDir,
+                            arr -> {
+
+                                QuickSort.IterativeQuickSort quickIterative = new QuickSort.IterativeQuickSort();
+                                quickIterative.sort(arr);
+
+                                return arr;
+                            }
+                    );
+
                     System.out.println(
                             "--------------------------------------------"
                     );
@@ -662,6 +734,65 @@ public class Benchmark {
                         return arr;
                     }
             );
+
+            measureAndSave(
+                    datasetName,
+                    run,
+                    "InsertionSort",
+                    originalArr,
+                    resultsDir,
+                    arr -> {
+                        InsertionSort insertion = new InsertionSort();
+                        insertion.sort(arr);
+
+                        return arr;
+                    }
+            );
+
+            measureAndSave(
+                    datasetName,
+                    run,
+                    "RecursiveInsertionSort",
+                    originalArr,
+                    resultsDir,
+                    arr -> {
+                        InsertionSort insertion = new InsertionSort();
+                        insertion.recursiveSort(arr);
+
+                        return arr;
+                    }
+             );
+
+             measureAndSave(
+                    datasetName,
+                    run,
+                    "QuickSort",
+                    originalArr,
+                    resultsDir,
+                    arr -> {
+
+                        QuickSort quick = new QuickSort();
+                        quick.sort(arr);
+
+                        return arr;
+                    }
+             );
+
+             measureAndSave(
+                    datasetName,
+                    run,
+                    "IterativeQuickSort",
+                    originalArr,
+                    resultsDir,
+                    arr -> {
+
+                        QuickSort.IterativeQuickSort quickIterative = new QuickSort.IterativeQuickSort();
+                        quickIterative.sort(arr);
+
+                        return arr;
+                    }
+             );
+
 
             System.out.println(
                     "--------------------------------------------"

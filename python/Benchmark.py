@@ -8,6 +8,8 @@ from sort.SelectionSort import SelectionSort
 from sort.MergeSort import MergeSort
 from sort.BubbleSort import BubbleSort
 from sort.HeapSort import HeapSort
+from sort.insertion_sort import InsertionSort
+from sort.quick_sort import QuickSort
 
 
 # None -> run every algorithm. A set -> run only those algo_name values.
@@ -19,6 +21,8 @@ ALGO_ALIASES = {
     "heap": ["HeapSort", "RecursiveHeapSort"],
     "selection": ["SelectionSort", "ImprovedSelectionSort"],
     "merge": ["RecursiveMergeSort", "IterativeMergeSort"],
+    "insertion": ["InsertionSort", "RecursiveInsertionSort"],
+    "quick": ["QuickSort", "IterativeQuickSort"],
 }
 
 
@@ -59,7 +63,11 @@ def main():
         "BubbleSort",
         "BasicBubbleSort",
         "HeapSort",
-        "RecursiveHeapSort"
+        "RecursiveHeapSort",
+        "InsertionSort",
+        "RecursiveInsertionSort",
+        "QuickSort",
+        "IterativeQuickSort"
     ]
 
     if SELECTED_ALGOS is not None:
@@ -376,6 +384,42 @@ def process_input_file(
                     HeapSort.sort_recursive
                 )
 
+                measure_and_save(
+                    dataset_name,
+                    run,
+                    "InsertionSort",
+                    original_arr,
+                    results_dir,
+                    InsertionSort.sort
+                )
+
+                measure_and_save(
+                    dataset_name,
+                    run,
+                    "RecursiveInsertionSort",
+                    original_arr,
+                    results_dir,
+                    InsertionSort.recursive_sort
+                )
+
+                measure_and_save(
+                    dataset_name,
+                    run,
+                    "QuickSort",
+                    original_arr,
+                    results_dir,
+                    QuickSort.sort
+                )
+
+                measure_and_save(
+                    dataset_name,
+                    run,
+                    "IterativeQuickSort",
+                    original_arr,
+                    results_dir,
+                    QuickSort.iterative_sort
+                )
+
                 print(
                     "--------------------------------------------"
                 )
@@ -517,6 +561,42 @@ def process_big_data_file(
             original_arr,
             results_dir,
             HeapSort.sort_recursive
+        )
+
+        measure_and_save(
+            dataset_name,
+            run,
+            "InsertionSort",
+            original_arr,
+            results_dir,
+            InsertionSort.sort
+        )
+
+        measure_and_save(
+            dataset_name,
+            run,
+            "RecursiveInsertionSort",
+            original_arr,
+            results_dir,
+            InsertionSort.recursive_sort
+        )
+
+        measure_and_save(
+            dataset_name,
+            run,
+            "QuickSort",
+            original_arr,
+            results_dir,
+            QuickSort.sort
+        )
+
+        measure_and_save(
+            dataset_name,
+            run,
+            "IterativeQuickSort",
+            original_arr,
+            results_dir,
+            QuickSort.iterative_sort
         )
 
         print(

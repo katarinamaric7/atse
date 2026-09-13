@@ -1,0 +1,3 @@
+Dataset,Algorithm,Run,Time(ms),CPU(%),Memory(MB)
+big_datasets_unique_1_100000.txt,QuickSort,1,1250.236500,24.68,0.00
+big_datasets_unique_2_100000.txt,QuickSort,1,1272.148200,25.18,0.00
