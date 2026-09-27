@@ -4,9 +4,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-# =========================================================
-# PODESAVANJA
-# =========================================================
 
 ALGORITHMS = [
     "SelectionSort",
@@ -28,14 +25,7 @@ METRICS = [
 DATASETS = ["bigdata", "duplicates", "random"]
 
 
-# =========================================================
-# 1. PRONALAZAK CSV FAJLA
-# =========================================================
-
 def find_result_file(results_dir, algorithm):
-    """
-    Pronadji CSV rezultat za dati algoritam.
-    """
     known_names = {
         "SelectionSort": "SelectionSortResult.csv",
         "ImprovedSelectionSort": "ImprovedSelectionSortResult.csv",
@@ -64,28 +54,9 @@ def find_result_file(results_dir, algorithm):
 
     return None
 
-
-# =========================================================
-# 2. NORMALIZACIJA NAZIVA KOLONA
-# =========================================================
-
 def normalize_column_name(name):
-    """
-    Normalizuje naziv kolone da bi parser radio i ako postoje
-    razmaci, velika/mala slova ili nasa slova.
-    """
+
     name = str(name).strip().lower()
-
-    replacements = {
-        "č": "c",
-        "ć": "c",
-        "š": "s",
-        "ž": "z",
-        "đ": "dj"
-    }
-
-    for old, new in replacements.items():
-        name = name.replace(old, new)
 
     name = re.sub(r"[^a-z0-9]+", "", name)
 
@@ -93,9 +64,6 @@ def normalize_column_name(name):
 
 
 def find_column(columns, possible_names):
-    """
-    Pronadji kolonu na osnovu nekoliko mogucih naziva.
-    """
     normalized = {
         normalize_column_name(col): col
         for col in columns
@@ -116,14 +84,8 @@ def find_column(columns, possible_names):
     return None
 
 
-# =========================================================
-# 3. UCITAVANJE JEDNOG CSV FAJLA
-# =========================================================
-
 def parse_result_file(file_path, language, algorithm_name, limit=100):
-    """
-    Ucitava merenja iz jednog CSV fajla (uzima prvih `limit` redova).
-    """
+
     data = []
 
     if not file_path or not os.path.exists(file_path):
@@ -146,22 +108,22 @@ def parse_result_file(file_path, language, algorithm_name, limit=100):
 
     length_col = find_column(
         df.columns,
-        ["Array Length", "Length", "Duzina niza", "Dužina niza", "N", "arraylength"]
+        ["arraylength"]
     )
 
     time_col = find_column(
         df.columns,
-        ["Vreme", "Time", "Execution Time", "ExecutionTime", "time"]
+        ["time"]
     )
 
     cpu_col = find_column(
         df.columns,
-        ["CPU Vreme", "CPU Time", "CpuTime", "CPU", "cputime"]
+        ["cputime"]
     )
 
     memory_col = find_column(
         df.columns,
-        ["Peak Memorija", "Potrosnja memorije", "Potrošnja memorije", "Memory", "Memorija", "Peak Memory", "memory"]
+        ["memory"]
     )
 
     missing = []
@@ -183,7 +145,6 @@ def parse_result_file(file_path, language, algorithm_name, limit=100):
         print("Pronadjene kolone:", list(df.columns))
         return data
 
-    # Uzima samo prvih `limit` redova iz fajla
     df = df.head(limit).copy()
 
     for col in [length_col, time_col, cpu_col, memory_col]:
@@ -217,11 +178,6 @@ def parse_result_file(file_path, language, algorithm_name, limit=100):
 
     return data
 
-
-# =========================================================
-# 4. UCITAVANJE SVIH DATASETA
-# =========================================================
-
 def load_all_data(base_dir):
     all_records = []
 
@@ -254,7 +210,6 @@ def load_all_data(base_dir):
 
                 print(f"Ucitavam: {language} | {dataset} | {algorithm}")
 
-                # Za random dataset (i ostale) limit je postavljen na 100 redova iz fajla
                 limit_val = 100 if dataset == "random" else 100
 
                 records = parse_result_file(
@@ -275,11 +230,6 @@ def load_all_data(base_dir):
 
     return df
 
-
-# =========================================================
-# 5. CRTANJE GRAFIKONA (PAMETNO PREPOZNAVANJE I UŽI STUBIĆI)
-# =========================================================
-
 def create_chart(
     df_sub,
     group_by_col,
@@ -289,11 +239,7 @@ def create_chart(
     use_log=False,
     is_fixed_size=False
 ):
-    """
-    Pravi grafikon:
-    - Stubasti (Bar Chart) za fiksne veličine (bigdata, duplicates)
-    - Linijski za random dataset
-    """
+
     if df_sub.empty:
         print(f"Preskacem prazan grafikon: {title}")
         return False
@@ -394,11 +340,6 @@ def create_chart(
 
     return True
 
-
-# =========================================================
-# 6. GRAFIKONI ZA JEDAN DATASET
-# =========================================================
-
 def generate_charts_for_dataset(
     df_dataset,
     analysis_dir,
@@ -410,7 +351,7 @@ def generate_charts_for_dataset(
     generated = []
     is_fixed = dataset in ["bigdata", "duplicates"]
 
-    # A) JAVA VS PYTHON (radi se za SVAKI algoritam sa liste)
+    # JAVA VS PYTHON 
     for algorithm in ALGORITHMS:
         df_algorithm = df_dataset[
             df_dataset["Algorithm"] == algorithm
@@ -425,13 +366,12 @@ def generate_charts_for_dataset(
             if create_chart(df_algorithm, "Language", metric, title, path, is_fixed_size=is_fixed):
                 generated.append(path)
 
-    df_java = df_dataset[df_dataset["Language"] == "Java"]
-    df_python = df_dataset[df_dataset["Language"] == "Python"]
-
-    # B) JAVA - SELECTION SORT
+    # JAVA - SELECTION SORT
+    df_java = df_dataset["Language" == "Java"]
     df_selection_java = df_java[
         df_java["Algorithm"].isin(["SelectionSort", "ImprovedSelectionSort"])
     ]
+
     for metric, metric_label in METRICS:
         path = os.path.join(dataset_dir, f"chart_Java_Selection_{metric}.png")
         title = f"{dataset}: Java - SelectionSort vs ImprovedSelectionSort - {metric_label}"
@@ -439,10 +379,11 @@ def generate_charts_for_dataset(
         if create_chart(df_selection_java, "Algorithm", metric, title, path, is_fixed_size=is_fixed):
             generated.append(path)
 
-    # C) JAVA - MERGE SORT
+    # JAVA - MERGE SORT
     df_merge_java = df_java[
         df_java["Algorithm"].isin(["IterativeMergeSort", "RecursiveMergeSort"])
     ]
+
     for metric, metric_label in METRICS:
         path = os.path.join(dataset_dir, f"chart_Java_Merge_{metric}.png")
         title = f"{dataset}: Java - IterativeMergeSort vs RecursiveMergeSort - {metric_label}"
@@ -450,10 +391,11 @@ def generate_charts_for_dataset(
         if create_chart(df_merge_java, "Algorithm", metric, title, path, is_fixed_size=is_fixed):
             generated.append(path)
 
-    # D) JAVA - INSERTION SORT
+    # JAVA - INSERTION SORT
     df_insertion_java = df_java[
         df_java["Algorithm"].isin(["InsertionSort", "RecursiveInsertionSort"])
     ]
+    
     for metric, metric_label in METRICS:
         path = os.path.join(dataset_dir, f"chart_Java_Insertion_{metric}.png")
         title = f"{dataset}: Java - InsertionSort vs RecursiveInsertionSort - {metric_label}"
@@ -461,7 +403,7 @@ def generate_charts_for_dataset(
         if create_chart(df_insertion_java, "Algorithm", metric, title, path, is_fixed_size=is_fixed):
             generated.append(path)
 
-    # E) JAVA - QUICK SORT
+    # JAVA - QUICK SORT
     df_quick_java = df_java[
         df_java["Algorithm"].isin(["IterativeQuickSort", "QuickSort"])
     ]
@@ -472,7 +414,7 @@ def generate_charts_for_dataset(
         if create_chart(df_quick_java, "Algorithm", metric, title, path, is_fixed_size=is_fixed):
             generated.append(path)
 
-    # F) PYTHON - SELECTION SORT
+    # PYTHON - SELECTION SORT
     df_selection_python = df_python[
         df_python["Algorithm"].isin(["SelectionSort", "ImprovedSelectionSort"])
     ]
@@ -483,7 +425,7 @@ def generate_charts_for_dataset(
         if create_chart(df_selection_python, "Algorithm", metric, title, path, is_fixed_size=is_fixed):
             generated.append(path)
 
-    # G) PYTHON - MERGE SORT
+    # PYTHON - MERGE SORT
     df_merge_python = df_python[
         df_python["Algorithm"].isin(["IterativeMergeSort", "RecursiveMergeSort"])
     ]
@@ -494,7 +436,7 @@ def generate_charts_for_dataset(
         if create_chart(df_merge_python, "Algorithm", metric, title, path, is_fixed_size=is_fixed):
             generated.append(path)
 
-    # H) PYTHON - INSERTION SORT
+    # PYTHON - INSERTION SORT
     df_insertion_python = df_python[
         df_python["Algorithm"].isin(["InsertionSort", "RecursiveInsertionSort"])
     ]
@@ -505,7 +447,7 @@ def generate_charts_for_dataset(
         if create_chart(df_insertion_python, "Algorithm", metric, title, path, is_fixed_size=is_fixed):
             generated.append(path)
 
-    # I) PYTHON - QUICK SORT
+    # PYTHON - QUICK SORT
     df_quick_python = df_python[
         df_python["Algorithm"].isin(["IterativeQuickSort", "QuickSort"])
     ]
@@ -518,10 +460,6 @@ def generate_charts_for_dataset(
 
     return generated
 
-
-# =========================================================
-# 7. MAIN
-# =========================================================
 
 if __name__ == "__main__":
     base_dir = os.path.dirname(os.path.abspath(__file__))
