@@ -1,0 +1,3 @@
+dataset,run,arraylength,time,cputime,memory
+big_datasets_unique_1_100000.txt,1,100000,1556576.553900,14.45,0.00
+big_datasets_unique_2_100000.txt,1,100000,887018.379200,24.95,0.00

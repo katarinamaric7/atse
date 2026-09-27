@@ -12,7 +12,11 @@ ALGORITHMS = [
     "SelectionSort",
     "ImprovedSelectionSort",
     "IterativeMergeSort",
-    "RecursiveMergeSort"
+    "RecursiveMergeSort",
+    "InsertionSort",
+    "RecursiveInsertionSort",
+    "IterativeQuickSort",
+    "QuickSort"
 ]
 
 METRICS = [
@@ -36,7 +40,11 @@ def find_result_file(results_dir, algorithm):
         "SelectionSort": "SelectionSortResult.csv",
         "ImprovedSelectionSort": "ImprovedSelectionSortResult.csv",
         "IterativeMergeSort": "IterativeMergeSortResult.csv",
-        "RecursiveMergeSort": "RecursiveMergeSortResult.csv"
+        "RecursiveMergeSort": "RecursiveMergeSortResult.csv",
+        "InsertionSort": "InsertionSortResult.csv",
+        "RecursiveInsertionSort": "RecursiveInsertionSortResult.csv",
+        "IterativeQuickSort": "IterativeQuickSortResult.csv",
+        "QuickSort": "QuickSortResult.csv"
     }
 
     filename = known_names.get(algorithm, f"{algorithm}Result.csv")
@@ -402,7 +410,7 @@ def generate_charts_for_dataset(
     generated = []
     is_fixed = dataset in ["bigdata", "duplicates"]
 
-    # A) JAVA VS PYTHON
+    # A) JAVA VS PYTHON (radi se za SVAKI algoritam sa liste)
     for algorithm in ALGORITHMS:
         df_algorithm = df_dataset[
             df_dataset["Algorithm"] == algorithm
@@ -417,12 +425,13 @@ def generate_charts_for_dataset(
             if create_chart(df_algorithm, "Language", metric, title, path, is_fixed_size=is_fixed):
                 generated.append(path)
 
-    # B) JAVA - SELECTION SORT
     df_java = df_dataset[df_dataset["Language"] == "Java"]
+    df_python = df_dataset[df_dataset["Language"] == "Python"]
+
+    # B) JAVA - SELECTION SORT
     df_selection_java = df_java[
         df_java["Algorithm"].isin(["SelectionSort", "ImprovedSelectionSort"])
     ]
-
     for metric, metric_label in METRICS:
         path = os.path.join(dataset_dir, f"chart_Java_Selection_{metric}.png")
         title = f"{dataset}: Java - SelectionSort vs ImprovedSelectionSort - {metric_label}"
@@ -434,7 +443,6 @@ def generate_charts_for_dataset(
     df_merge_java = df_java[
         df_java["Algorithm"].isin(["IterativeMergeSort", "RecursiveMergeSort"])
     ]
-
     for metric, metric_label in METRICS:
         path = os.path.join(dataset_dir, f"chart_Java_Merge_{metric}.png")
         title = f"{dataset}: Java - IterativeMergeSort vs RecursiveMergeSort - {metric_label}"
@@ -442,12 +450,32 @@ def generate_charts_for_dataset(
         if create_chart(df_merge_java, "Algorithm", metric, title, path, is_fixed_size=is_fixed):
             generated.append(path)
 
-    # D) PYTHON - SELECTION SORT
-    df_python = df_dataset[df_dataset["Language"] == "Python"]
+    # D) JAVA - INSERTION SORT
+    df_insertion_java = df_java[
+        df_java["Algorithm"].isin(["InsertionSort", "RecursiveInsertionSort"])
+    ]
+    for metric, metric_label in METRICS:
+        path = os.path.join(dataset_dir, f"chart_Java_Insertion_{metric}.png")
+        title = f"{dataset}: Java - InsertionSort vs RecursiveInsertionSort - {metric_label}"
+
+        if create_chart(df_insertion_java, "Algorithm", metric, title, path, is_fixed_size=is_fixed):
+            generated.append(path)
+
+    # E) JAVA - QUICK SORT
+    df_quick_java = df_java[
+        df_java["Algorithm"].isin(["IterativeQuickSort", "QuickSort"])
+    ]
+    for metric, metric_label in METRICS:
+        path = os.path.join(dataset_dir, f"chart_Java_Quick_{metric}.png")
+        title = f"{dataset}: Java - IterativeQuickSort vs QuickSort - {metric_label}"
+
+        if create_chart(df_quick_java, "Algorithm", metric, title, path, is_fixed_size=is_fixed):
+            generated.append(path)
+
+    # F) PYTHON - SELECTION SORT
     df_selection_python = df_python[
         df_python["Algorithm"].isin(["SelectionSort", "ImprovedSelectionSort"])
     ]
-
     for metric, metric_label in METRICS:
         path = os.path.join(dataset_dir, f"chart_Python_Selection_{metric}.png")
         title = f"{dataset}: Python - SelectionSort vs ImprovedSelectionSort - {metric_label}"
@@ -455,16 +483,37 @@ def generate_charts_for_dataset(
         if create_chart(df_selection_python, "Algorithm", metric, title, path, is_fixed_size=is_fixed):
             generated.append(path)
 
-    # E) PYTHON - MERGE SORT
+    # G) PYTHON - MERGE SORT
     df_merge_python = df_python[
         df_python["Algorithm"].isin(["IterativeMergeSort", "RecursiveMergeSort"])
     ]
-
     for metric, metric_label in METRICS:
         path = os.path.join(dataset_dir, f"chart_Python_Merge_{metric}.png")
         title = f"{dataset}: Python - IterativeMergeSort vs RecursiveMergeSort - {metric_label}"
 
         if create_chart(df_merge_python, "Algorithm", metric, title, path, is_fixed_size=is_fixed):
+            generated.append(path)
+
+    # H) PYTHON - INSERTION SORT
+    df_insertion_python = df_python[
+        df_python["Algorithm"].isin(["InsertionSort", "RecursiveInsertionSort"])
+    ]
+    for metric, metric_label in METRICS:
+        path = os.path.join(dataset_dir, f"chart_Python_Insertion_{metric}.png")
+        title = f"{dataset}: Python - InsertionSort vs RecursiveInsertionSort - {metric_label}"
+
+        if create_chart(df_insertion_python, "Algorithm", metric, title, path, is_fixed_size=is_fixed):
+            generated.append(path)
+
+    # I) PYTHON - QUICK SORT
+    df_quick_python = df_python[
+        df_python["Algorithm"].isin(["IterativeQuickSort", "QuickSort"])
+    ]
+    for metric, metric_label in METRICS:
+        path = os.path.join(dataset_dir, f"chart_Python_Quick_{metric}.png")
+        title = f"{dataset}: Python - IterativeQuickSort vs QuickSort - {metric_label}"
+
+        if create_chart(df_quick_python, "Algorithm", metric, title, path, is_fixed_size=is_fixed):
             generated.append(path)
 
     return generated
