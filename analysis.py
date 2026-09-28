@@ -13,7 +13,11 @@ ALGORITHMS = [
     "InsertionSort",
     "RecursiveInsertionSort",
     "IterativeQuickSort",
-    "QuickSort"
+    "QuickSort",
+    "BubbleSort",
+    "BasicBubbleSort",
+    "HeapSort",
+    "RecursiveHeapSort"
 ]
 
 METRICS = [
@@ -34,7 +38,11 @@ def find_result_file(results_dir, algorithm):
         "InsertionSort": "InsertionSortResult.csv",
         "RecursiveInsertionSort": "RecursiveInsertionSortResult.csv",
         "IterativeQuickSort": "IterativeQuickSortResult.csv",
-        "QuickSort": "QuickSortResult.csv"
+        "QuickSort": "QuickSortResult.csv",
+        "BubbleSort": "BubbleSortResult.csv",
+        "BasicBubbleSort": "BasicBubbleSortResult.csv",
+        "HeapSort": "HeapSortResult.csv",
+        "RecursiveHeapSort": "RecursiveHeapSortResult.csv"
     }
 
     filename = known_names.get(algorithm, f"{algorithm}Result.csv")
@@ -365,6 +373,52 @@ def generate_charts_for_dataset(
 
             if create_chart(df_algorithm, "Language", metric, title, path, is_fixed_size=is_fixed):
                 generated.append(path)
+
+    # JAVA - BUBBLE SORT
+    df_java_bh = df_dataset[df_dataset["Language"] == "Java"]
+    df_bubble_java = df_java_bh[
+        df_java_bh["Algorithm"].isin(["BubbleSort", "BasicBubbleSort"])
+    ]
+    for metric, metric_label in METRICS:
+        path = os.path.join(dataset_dir, f"chart_Java_Bubble_{metric}.png")
+        title = f"{dataset}: Java - BubbleSort vs BasicBubbleSort - {metric_label}"
+
+        if create_chart(df_bubble_java, "Algorithm", metric, title, path, is_fixed_size=is_fixed):
+            generated.append(path)
+
+    # JAVA - HEAP SORT
+    df_heap_java = df_java_bh[
+        df_java_bh["Algorithm"].isin(["HeapSort", "RecursiveHeapSort"])
+    ]
+    for metric, metric_label in METRICS:
+        path = os.path.join(dataset_dir, f"chart_Java_Heap_{metric}.png")
+        title = f"{dataset}: Java - HeapSort vs RecursiveHeapSort - {metric_label}"
+
+        if create_chart(df_heap_java, "Algorithm", metric, title, path, is_fixed_size=is_fixed):
+            generated.append(path)
+
+    # PYTHON - BUBBLE SORT
+    df_python_bh = df_dataset[df_dataset["Language"] == "Python"]
+    df_bubble_python = df_python_bh[
+        df_python_bh["Algorithm"].isin(["BubbleSort", "BasicBubbleSort"])
+    ]
+    for metric, metric_label in METRICS:
+        path = os.path.join(dataset_dir, f"chart_Python_Bubble_{metric}.png")
+        title = f"{dataset}: Python - BubbleSort vs BasicBubbleSort - {metric_label}"
+
+        if create_chart(df_bubble_python, "Algorithm", metric, title, path, is_fixed_size=is_fixed):
+            generated.append(path)
+
+    # PYTHON - HEAP SORT
+    df_heap_python = df_python_bh[
+        df_python_bh["Algorithm"].isin(["HeapSort", "RecursiveHeapSort"])
+    ]
+    for metric, metric_label in METRICS:
+        path = os.path.join(dataset_dir, f"chart_Python_Heap_{metric}.png")
+        title = f"{dataset}: Python - HeapSort vs RecursiveHeapSort - {metric_label}"
+
+        if create_chart(df_heap_python, "Algorithm", metric, title, path, is_fixed_size=is_fixed):
+            generated.append(path)
 
     # JAVA - SELECTION SORT
     df_java = df_dataset["Language" == "Java"]
